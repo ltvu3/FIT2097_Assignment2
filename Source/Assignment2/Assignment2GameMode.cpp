@@ -9,6 +9,7 @@
 #include "Engine/World.h"
 #include "Engine.h"
 #include "MyHUD.h"
+#include "Assignment2Character.h"
 
 AAssignment2GameMode::AAssignment2GameMode()
 {
@@ -71,6 +72,7 @@ void AAssignment2GameMode::PrintGameWorldInfo()
 		*/
 		// Use the World to get a list of all controllers
 		// GetControllerIterator() gets both PlayerControllers and AIControllers
+		/*
 		for (FConstControllerIterator ContIT = World->GetControllerIterator(); ContIT; ++ContIT)
 		{
 			// So we need to check that we have a PlayerController
@@ -85,6 +87,7 @@ void AAssignment2GameMode::PrintGameWorldInfo()
 
 			}
 		}
+		*/
 
 	}
 }

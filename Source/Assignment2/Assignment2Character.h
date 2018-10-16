@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "MyKey.h"
 #include "Assignment2Character.generated.h"
 
 UCLASS(config=Game)
@@ -84,11 +85,16 @@ public:
 
 	//virtual void BeginPlay() override;
 
-	void TakeDamage();
+	//FTimerHandle GasTimerHandle;
+
+	void TakeGasDamage(float DeltaTime);
 
 	bool CheckIfDead();
 
 	void ClearPickupInfo();
+
+	UFUNCTION(BlueprintCallable)
+		void SetObservation(FString newObservation) { observation = newObservation; }
 
 	UFUNCTION(BlueprintPure)
 		FString GetObservation();
@@ -107,17 +113,20 @@ public:
 	bool hasFuse;
 	bool hasTorch;
 	bool disableSprint;
-
-	bool lookingAtKey;
+	bool interact;
 
 	UFUNCTION(BlueprintPure)
 		float getHealth() { return health; }
+
+	UFUNCTION(BlueprintCallable)
+		void heal(float amount) { health += amount; }
 	
 	UFUNCTION(BlueprintPure)
 		bool getHasKey() { return hasKey; }
 	
 	UFUNCTION(BlueprintPure)
 		bool getHasFuse() { return hasFuse; }
+
 
 
 
@@ -136,8 +145,8 @@ public:
 		bool ReturnPhysMat
 	);
 
-	void CallMyTrace();
+	void CallMyTrace(bool interact);
 
-	void ProcessTraceHit(FHitResult& HitOut);
+	void ProcessTraceHit(FHitResult& HitOut, bool interact);
 
 };

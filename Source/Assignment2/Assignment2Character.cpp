@@ -12,6 +12,7 @@
 #include "Engine/World.h"
 #include "Engine.h"
 #include "MyKey.h"
+#include "MyDoor.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AAssignment2Character
@@ -62,8 +63,7 @@ AAssignment2Character::AAssignment2Character()
 	hasKey = false;
 	hasFuse = false;
 	hasTorch = false;
-
-	lookingAtKey = false;
+	interact = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -162,15 +162,19 @@ void AAssignment2Character::MoveRight(float Value)
 	// ** My Code
 	// *******************************************
 
+/*
+void AAssignment2Character::BeginPlay()
+{
+}
+*/
+
 void AAssignment2Character::Interact()
 {
 	//if (GEngine)
 		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Click!"));
-
-	if (lookingAtKey) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Key"));
-		hasKey = true;
-	}
+	interact = true;
+	CallMyTrace(interact);
+	interact = false;
 }
 
 FString AAssignment2Character::MyRole()
@@ -187,14 +191,15 @@ FString AAssignment2Character::MyRole()
 
 void AAssignment2Character::Tick(float DeltaTime)
 {
-	CallMyTrace();
+	CallMyTrace(false);
+	TakeGasDamage(DeltaTime);
 	Super::Tick(DeltaTime);
 }
 
 
-void AAssignment2Character::TakeDamage()
+void AAssignment2Character::TakeGasDamage(float DeltaTime)
 {
-	health -= damageAmount;
+	health -= damageAmount *DeltaTime;
 }
 
 bool AAssignment2Character::CheckIfDead()
@@ -283,7 +288,7 @@ bool AAssignment2Character::Trace(
 //** CallMyTrace() - sets up our parameters and then calls our Trace() function
 //***************************************************************************************************
 
-void AAssignment2Character::CallMyTrace()
+void AAssignment2Character::CallMyTrace(bool interact)
 {
 	// Get the location of the camera (where we are looking from) and the direction we are looking in
 	const FVector Start = FollowCamera->GetComponentLocation();
@@ -311,7 +316,7 @@ void AAssignment2Character::CallMyTrace()
 		{
 
 			//UE_LOG(LogClass, Warning, TEXT("This a testing statement. %s"), *HitData.GetActor()->GetName());
-			ProcessTraceHit(HitData);
+			ProcessTraceHit(HitData, interact);
 
 		}
 		else
@@ -334,39 +339,36 @@ void AAssignment2Character::CallMyTrace()
 //** ProcessTraceHit() - process our Trace Hit result
 //***************************************************************************************************
 
-void AAssignment2Character::ProcessTraceHit(FHitResult& HitOut)
+void AAssignment2Character::ProcessTraceHit(FHitResult& HitOut, bool interact)
 {
 	// Cast the actor to APickup
 	AMyKey* const Key = Cast<AMyKey>(HitOut.GetActor());
-
-	if (Key)
+	if (Key && !Key->isDisabled())
 	{
-		//if (GEngine)
-			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Hit!"));
-
 		observation = Key->GetObservation();
-		lookingAtKey = true;
-		if (hasKey == true)
+		if (interact)
+		{
 			Key->GetPickedUp();
-
-
-		// Keep a pointer to the Pickup
-		//CurrentPickup = TestPickup;
-
-		// Set a local variable of the PickupName for the HUD
-		//UE_LOG(LogClass, Warning, TEXT("PickupName: %s"), *TestPickup->GetPickupName());
-		//PickupName = TestPickup->GetPickupName();
-
-		// Set a local variable of the PickupDisplayText for the HUD
-		//UE_LOG(LogClass, Warning, TEXT("PickupDisplayText: %s"), *TestPickup->GetPickupDisplayText());
-		//PickupDisplayText = TestPickup->GetPickupDisplayText();
-		//PickupFound = true;
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Picked up key!"));
+		}
+		
 	}
-	else
+
+	AMyDoor* const Door = Cast<AMyDoor>(HitOut.GetActor());
+	if (Door && Door->isDisabled())
 	{
-		//UE_LOG(LogClass, Warning, TEXT("TestPickup is NOT a Pickup!"));
-		ClearPickupInfo();
-		lookingAtKey = false;
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Door!"));
+		observation = Door->GetObservation();
+		if (interact && hasKey)
+		{
+			Door->OpenDoor();
+			hasKey = false;
+			Door->Disable();
+		}
+		else if (interact && !hasKey) {
+			observation = Door->GetNoKeyObservation();
+		}
+
 	}
 		
 }

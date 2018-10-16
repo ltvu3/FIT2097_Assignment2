@@ -3,46 +3,38 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/StaticMeshActor.h"
-#include "MyKey.generated.h"
+#include "GameFramework/Actor.h"
+#include "MyDoor.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ASSIGNMENT2_API AMyKey : public AStaticMeshActor
+class ASSIGNMENT2_API AMyDoor : public AActor
 {
 	GENERATED_BODY()
-		
+	
 public:
+	AMyDoor();
 
-	AMyKey();
-
-	// Networking Stuff
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION(BlueprintPure)
-		bool IsActive();
-	
-	UFUNCTION(BlueprintCallable)
-		void setActive(bool NewState);
+	bool IsActive();
+
+	void setActive(bool NewState);
 
 	FString observation;
+	FString noKeyObservation;
 
 	FString GetObservation() { return observation; }
+	FString GetNoKeyObservation() { return observation; }
 
-	UFUNCTION(Client, Reliable, WithValidation)
-		void ClientPickedUp();
-
-	UFUNCTION(NetMulticast, Reliable)
-		void ServerPickedUp();
-
-	void GetPickedUp();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OpenDoor();
 
 	bool disabled;
 	void Disable() { disabled = true; }
 	bool isDisabled() { return disabled; }
-
 
 protected:
 
@@ -52,6 +44,5 @@ protected:
 	UFUNCTION()
 		virtual void OnRep_IsActive();
 	
-
 	
 };

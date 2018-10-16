@@ -17,7 +17,6 @@ public:
 	virtual void BeginPlay() override;
 
 	void PrintGameWorldInfo();
-
 };
 
 
