@@ -20,6 +20,13 @@ public:
 
 	void PrintGameWorldInfo();
 
+	FString announcement;
+
+	UFUNCTION(BlueprintPure)
+		FString GetAnnouncement() { return announcement; }
+	
+	UFUNCTION(BlueprintCallable)
+		void SetAnnouncement(FString announce) { announcement = announce; }
 
 };
 

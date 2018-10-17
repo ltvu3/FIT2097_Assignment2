@@ -14,6 +14,7 @@
 #include "MyKey.h"
 #include "MyDoor.h"
 #include "MyFuseBox.h"
+#include "MySwitch.h"
 #include "Net/UnrealNetwork.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -235,6 +236,17 @@ FString AAssignment2Character::GetAnnouncement() {
 	return announcement;
 }
 
+void AAssignment2Character::SetAnnouncement(FString announce) {
+	if (Role == ROLE_Authority)
+	{
+		announcement = announce;
+	}
+	else
+	{
+		ServerSetAnnouncement(announce);
+	}
+}
+
 
 //***************************************************************************************************
 //** Trace functions - used to detect items we are looking at in the world
@@ -364,9 +376,6 @@ void AAssignment2Character::ProcessTraceHit(FHitResult& HitOut, bool interact)
 		if (interact)
 		{
 			PickupKey(Key);
-			//Key->GetPickedUp();
-			//GameMode->GetPickedUp(Key);
-			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Picked up key!"));
 		}
 		
 	}
@@ -375,29 +384,21 @@ void AAssignment2Character::ProcessTraceHit(FHitResult& HitOut, bool interact)
 	if (FuseBox)
 	{
 		observation = FuseBox->GetObservation();
-		if (interact) {
+		if (interact && !FuseBox->isFusePlaced() && hasKey) {
 			PlaceFuse(FuseBox);
 		}
 	}
 
-
-	AMyDoor* const Door = Cast<AMyDoor>(HitOut.GetActor());
-	if (Door && Door->isDisabled())
+	AMySwitch* const ASwitch = Cast<AMySwitch>(HitOut.GetActor());
+	if (ASwitch)
 	{
-		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Door!"));
-		observation = Door->GetObservation();
-		if (interact && hasKey)
-		{
-			Door->OpenDoor();
-			hasKey = false;
-			Door->Disable();
+		observation = ASwitch->GetObservation();
+		if (interact) {
+			if (ASwitch->IsFuseActivated()) {
+				PullSwitch(ASwitch);
+			}
 		}
-		else if (interact && !hasKey) {
-			observation = Door->GetNoKeyObservation();
-		}
-
-	}
-		
+	}		
 }
 
 // ******************************************************************************
@@ -407,7 +408,8 @@ void AAssignment2Character::PickupKey(AMyKey* key)
 	if (Role == ROLE_Authority)
 	{
 		key->GetPickedUp();
-		hasKey = true;
+		setHasKey(true);
+		SetAnnouncement("Fuse has been collected");
 	}
 	else
 	{
@@ -433,7 +435,8 @@ void AAssignment2Character::PlaceFuse(AMyFuseBox* fusebox)
 	if (Role == ROLE_Authority)
 	{
 		fusebox->FusePlaced();
-		hasKey = false;
+		setHasKey(false);
+		SetAnnouncement("Fuse has been placed in Fuse Box");
 	}
 	else
 	{
@@ -447,6 +450,32 @@ void AAssignment2Character::ServerPlaceFuse_Implementation(AMyFuseBox* fusebox)
 }
 
 bool AAssignment2Character::ServerPlaceFuse_Validate(AMyFuseBox* fusebox)
+{
+	return true;
+}
+// ******************************************************************************
+
+// ******************************************************************************
+// Switch Functions
+void AAssignment2Character::PullSwitch(AMySwitch* aswitch)
+{
+	if (Role == ROLE_Authority)
+	{
+		aswitch->SwitchPulled();
+		SetAnnouncement("Door 1 has opened");
+	}
+	else
+	{
+		ServerPullSwitch(aswitch);
+	}
+}
+
+void AAssignment2Character::ServerPullSwitch_Implementation(AMySwitch* aswitch)
+{
+	PullSwitch(aswitch);
+}
+
+bool AAssignment2Character::ServerPullSwitch_Validate(AMySwitch* aswitch)
 {
 	return true;
 }

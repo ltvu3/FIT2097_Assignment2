@@ -17,6 +17,7 @@ void AMyFuseBox::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMyFuseBox, bIsActive);
+	DOREPLIFETIME(AMyFuseBox, fuseIsPlaced);
 }
 
 bool AMyFuseBox::IsActive()

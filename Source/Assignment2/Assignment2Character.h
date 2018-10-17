@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "MyKey.h"
 #include "MyFuseBox.h"
-#include "Assignment2GameMode.h"
+#include "MySwitch.h"
 #include "Assignment2Character.generated.h"
 
 UCLASS(config=Game)
@@ -102,6 +102,16 @@ public:
 		bool ServerPlaceFuse_Validate(AMyFuseBox* fusebox);
 	// *******
 
+
+	// ********
+	// Switch Functions
+	virtual void PullSwitch(AMySwitch* aswitch);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerPullSwitch(AMySwitch* aswitch);
+		void ServerPullSwitch_Implementation(AMySwitch* aswitch);
+		bool ServerPullSwitch_Validate(AMySwitch* aswitch);
+	// *******
 	UFUNCTION(BlueprintPure)
 		FString MyRole();
 
@@ -121,30 +131,44 @@ public:
 	UFUNCTION(BlueprintPure)
 		FString GetObservation();
 
-	UFUNCTION(BlueprintPure)
-		FString GetAnnouncement();
-
-	// Character Variables
 	UPROPERTY(Replicated)
 		FString announcement;
 
-	FString observation;
+	UFUNCTION(BlueprintPure)
+		FString GetAnnouncement();
+
+	virtual void SetAnnouncement(FString announce);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerSetAnnouncement(const FString& announce);
+		void ServerSetAnnouncement_Implementation(const FString& announce) { announcement = announce; }
+		bool ServerSetAnnouncement_Validate(const FString& announce) { return true; }
+
+		/*
+	UFUNCTION(Client, Reliable)
+		void ClientSetAnnouncement(const FString& announce);
+		void ClientSetAnnouncement_Implementation(const FString& announce) {announcement = announce; }
+		bool ClientSetAnnouncement_Validate(const FString& announce) { return true; }
+		*/
 
 	UPROPERTY(Replicated)
 		float health;
+
+	UFUNCTION(BlueprintPure)
+		float getHealth() { return health; }
 
 	UPROPERTY(Replicated)
 		bool hasKey;
 
 	UFUNCTION(BlueprintPure)
-		float getHealth() { return health; }
-
-	UFUNCTION(BlueprintCallable)
-		void heal(float amount) { health += amount; }
-	
-	UFUNCTION(BlueprintPure)
 		bool getHasKey() { return hasKey; }
 
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+		void setHasKey(bool aBool);
+		void setHasKey_Implementation(bool aBool) { hasKey = aBool; }
+		bool setHasKey_Validate(bool aBool) { return true; }
+
+	FString observation;
 	float damageAmount;
 	float damageRate;
 	bool isDead;

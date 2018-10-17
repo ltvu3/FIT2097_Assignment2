@@ -23,18 +23,8 @@ public:
 
 	void setActive(bool NewState);
 
-	FString observation;
-	FString noKeyObservation;
-
-	FString GetObservation() { return observation; }
-	FString GetNoKeyObservation() { return observation; }
-
 	UFUNCTION(BlueprintImplementableEvent)
 		void OpenDoor();
-
-	bool disabled;
-	void Disable() { disabled = true; }
-	bool isDisabled() { return disabled; }
 
 protected:
 

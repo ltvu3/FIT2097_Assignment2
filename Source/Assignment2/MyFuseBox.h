@@ -28,12 +28,21 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void FusePlaced();
 
+	UFUNCTION(BlueprintCallable)
+		bool isFusePlaced() { return fuseIsPlaced; }
+
+	UFUNCTION(BlueprintCallable)
+		void setFusePlaced() { fuseIsPlaced = true; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(ReplicatedUsing = OnRep_IsActive)
 		bool bIsActive;
+
+	UPROPERTY(Replicated)
+		bool fuseIsPlaced;
 
 	UPROPERTY(Replicated)
 		FString observation;

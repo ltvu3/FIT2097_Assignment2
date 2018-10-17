@@ -1,16 +1,57 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MySwitch.h"
-
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AMySwitch::AMySwitch()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	PrimaryActorTick.bCanEverTick = false;
+	observation = "It's a switch";
+	inactiveObservation = "It won't budge";
+	fuseActivated = false;
+}
+
+void AMySwitch::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AMySwitch, bIsActive);
+	DOREPLIFETIME(AMySwitch, fuseActivated);
+}
+
+bool AMySwitch::IsActive()
+{
+	return bIsActive;
+}
+
+void AMySwitch::setActive(bool NewState)
+{
+
+	if (Role == ROLE_Authority)
+	{
+		bIsActive = NewState;
+	}
 
 }
 
+void AMySwitch::OnRep_IsActive()
+{
+	//
+}
+
+
+bool AMySwitch::IsFuseActivated()
+{
+
+	if (fuseActivated)
+	{
+		return true;
+	}
+	return false;
+
+}
 // Called when the game starts or when spawned
 void AMySwitch::BeginPlay()
 {

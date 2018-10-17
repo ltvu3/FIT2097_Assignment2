@@ -9,12 +9,15 @@ AMyDoor::AMyDoor()
 
 	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = false;
-	observation = "Left click to open door";
-	noKeyObservation = "It requires a key";
 	bIsActive = true;
-	disabled = false;
 	bReplicateMovement = true;
 }
+/*
+void AMyDoor::OpenDoor() {
+	FRotator NewRotation = FRotator(0.0f, 90.0f, 0.0f);
+	FQuat QuatRotation = FQuat(NewRotation);
+	AddActorLocalRotation(QuatRotation, false, 0, ETeleportType::None);
+}*/
 
 void AMyDoor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
