@@ -1,6 +1,9 @@
 # FIT2097_Assignment2
 
+GitHub Link: https://github.com/ltvu3/FIT2097_Assignment2
+
 As all the requirements listed in the brief "marked [No Change] are optional and do NOT need to be included in your submission", they are not included in this project. 
+
 (Moodle Forum post "[Please Read] Assignment 2 Requirements Clarification" posted by Chris Nelson - Tuesday, 16 October 2018, 11:08 AM, https://moodle.vle.monash.edu/mod/forum/discuss.php?d=1491574)
 
 Left click is used for all interactions in the game.
@@ -20,15 +23,15 @@ Room 2
 What Works:
 
 - UI Displays the different items the relevant player has, such as keys, fuses etc
-- UI Displays the relevant player’s health
+- UI Displays the relevant playerâ€™s health
 - UI Shows relevant messages on screen such as when a door has been unlocked (Messages shown to all players)
 - All existing gameplay actors support multiplayer replication
 - Character and GameMode classes written in C++
 - Interaction with game objects driven by a Trace written in C++ rather than collision boxes. The debug trace line left ON.
-- Fuse to a powered door – the player must find a fuse for a powerbox. Once the fuse is placed they can flip the switch and the 
+- Fuse to a powered door â€“ the player must find a fuse for a powerbox. Once the fuse is placed they can flip the switch and the 
   door will open.
 - A particle emitter and a sound are played when the fuse is placed in the power box
-- Remote Unlock for co-op play – one player must activate a switch at a remote location, which opens a door. When the switch
+- Remote Unlock for co-op play â€“ one player must activate a switch at a remote location, which opens a door. When the switch
   is released the door closes. There is a second identical switch on the other side of the door to allow the second player to 
   get through the door. Players must cooperate to get through the door.
 
