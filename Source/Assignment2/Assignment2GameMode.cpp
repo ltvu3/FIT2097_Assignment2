@@ -8,8 +8,6 @@
 #include "GameFramework/GameNetworkManager.h"
 #include "Engine/World.h"
 #include "Engine.h"
-#include "MyHUD.h"
-#include "Assignment2Character.h"
 
 AAssignment2GameMode::AAssignment2GameMode()
 {
@@ -20,13 +18,19 @@ AAssignment2GameMode::AAssignment2GameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	// use our custom HUD class
-	//HUDClass = AMyHUD::StaticClass();
+	//PrimaryActorTick.bStartWithTickEnabled = true;
+	//PrimaryActorTick.bCanEverTick = true;
+
 }
 
 void AAssignment2GameMode::BeginPlay()
 {
 	//PrintGameWorldInfo();
+}
+
+void AAssignment2GameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 void AAssignment2GameMode::PrintGameWorldInfo()

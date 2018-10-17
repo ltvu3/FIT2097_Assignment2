@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "MyKey.h"
+#include "MyFuseBox.h"
+#include "Assignment2GameMode.h"
 #include "Assignment2Character.generated.h"
 
 UCLASS(config=Game)
@@ -77,6 +79,28 @@ public:
 	// *******************************************
 	// ** My Code
 	// *******************************************
+	
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	// *******
+	// Key/Fuse Functions 
+	virtual void PickupKey(AMyKey* key);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerPickupKey(AMyKey* key);
+		void ServerPickupKey_Implementation(AMyKey* key);
+		bool ServerPickupKey_Validate(AMyKey* key);
+	// ********
+
+	// ********
+	// FuseBox Functions
+	virtual void PlaceFuse(AMyFuseBox* fusebox);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerPlaceFuse(AMyFuseBox* fusebox);
+		void ServerPlaceFuse_Implementation(AMyFuseBox* fusebox);
+		bool ServerPlaceFuse_Validate(AMyFuseBox* fusebox);
+	// *******
 
 	UFUNCTION(BlueprintPure)
 		FString MyRole();
@@ -84,8 +108,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	//virtual void BeginPlay() override;
-
-	//FTimerHandle GasTimerHandle;
 
 	void TakeGasDamage(float DeltaTime);
 
@@ -99,21 +121,20 @@ public:
 	UFUNCTION(BlueprintPure)
 		FString GetObservation();
 
+	UFUNCTION(BlueprintPure)
+		FString GetAnnouncement();
+
 	// Character Variables
+	UPROPERTY(Replicated)
+		FString announcement;
+
 	FString observation;
-	float health;
-	float damageAmount;
-	float damageRate;
-	float startingDamageRate;
-	float sprintValue;
-	float walkValue;
-	float sprintDamageModifier;
-	bool isDead;
-	bool hasKey;
-	bool hasFuse;
-	bool hasTorch;
-	bool disableSprint;
-	bool interact;
+
+	UPROPERTY(Replicated)
+		float health;
+
+	UPROPERTY(Replicated)
+		bool hasKey;
 
 	UFUNCTION(BlueprintPure)
 		float getHealth() { return health; }
@@ -123,11 +144,11 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 		bool getHasKey() { return hasKey; }
-	
-	UFUNCTION(BlueprintPure)
-		bool getHasFuse() { return hasFuse; }
 
-
+	float damageAmount;
+	float damageRate;
+	bool isDead;
+	bool interact;
 
 
 	//***************************************************************************************************

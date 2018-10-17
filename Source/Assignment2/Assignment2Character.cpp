@@ -13,6 +13,8 @@
 #include "Engine.h"
 #include "MyKey.h"
 #include "MyDoor.h"
+#include "MyFuseBox.h"
+#include "Net/UnrealNetwork.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AAssignment2Character
@@ -55,14 +57,12 @@ AAssignment2Character::AAssignment2Character()
 	// ** My Code
 	// *******************************************
 
+	//Setup Variables
 	health = 1.0f;
 	damageAmount = 0.01f;
-	startingDamageRate = 1.0f;
-	damageRate = startingDamageRate;
+	damageRate = 1.0f;
 	isDead = false;
 	hasKey = false;
-	hasFuse = false;
-	hasTorch = false;
 	interact = false;
 }
 
@@ -168,6 +168,15 @@ void AAssignment2Character::BeginPlay()
 }
 */
 
+void AAssignment2Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AAssignment2Character, hasKey);
+	DOREPLIFETIME(AAssignment2Character, health);
+	DOREPLIFETIME(AAssignment2Character, announcement);
+}
+
 void AAssignment2Character::Interact()
 {
 	//if (GEngine)
@@ -176,6 +185,8 @@ void AAssignment2Character::Interact()
 	CallMyTrace(interact);
 	interact = false;
 }
+
+
 
 FString AAssignment2Character::MyRole()
 {
@@ -218,6 +229,10 @@ void AAssignment2Character::ClearPickupInfo() {
 
 FString AAssignment2Character::GetObservation() {
 	return observation;
+}
+
+FString AAssignment2Character::GetAnnouncement() {
+	return announcement;
 }
 
 
@@ -343,16 +358,28 @@ void AAssignment2Character::ProcessTraceHit(FHitResult& HitOut, bool interact)
 {
 	// Cast the actor to APickup
 	AMyKey* const Key = Cast<AMyKey>(HitOut.GetActor());
-	if (Key && !Key->isDisabled())
+	if (Key)
 	{
 		observation = Key->GetObservation();
 		if (interact)
 		{
-			Key->GetPickedUp();
+			PickupKey(Key);
+			//Key->GetPickedUp();
+			//GameMode->GetPickedUp(Key);
 			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Picked up key!"));
 		}
 		
 	}
+
+	AMyFuseBox* const FuseBox = Cast<AMyFuseBox>(HitOut.GetActor());
+	if (FuseBox)
+	{
+		observation = FuseBox->GetObservation();
+		if (interact) {
+			PlaceFuse(FuseBox);
+		}
+	}
+
 
 	AMyDoor* const Door = Cast<AMyDoor>(HitOut.GetActor());
 	if (Door && Door->isDisabled())
@@ -372,3 +399,55 @@ void AAssignment2Character::ProcessTraceHit(FHitResult& HitOut, bool interact)
 	}
 		
 }
+
+// ******************************************************************************
+// Key/Fuse Functions
+void AAssignment2Character::PickupKey(AMyKey* key)
+{
+	if (Role == ROLE_Authority)
+	{
+		key->GetPickedUp();
+		hasKey = true;
+	}
+	else
+	{
+		ServerPickupKey(key);
+	}
+}
+
+void AAssignment2Character::ServerPickupKey_Implementation(AMyKey* key)
+{
+	PickupKey(key);
+}
+
+bool AAssignment2Character::ServerPickupKey_Validate(AMyKey* key)
+{
+	return true;
+}
+// ******************************************************************************
+
+// ******************************************************************************
+// FuseBox Functions
+void AAssignment2Character::PlaceFuse(AMyFuseBox* fusebox)
+{
+	if (Role == ROLE_Authority)
+	{
+		fusebox->FusePlaced();
+		hasKey = false;
+	}
+	else
+	{
+		ServerPlaceFuse(fusebox);
+	}
+}
+
+void AAssignment2Character::ServerPlaceFuse_Implementation(AMyFuseBox* fusebox)
+{
+	PlaceFuse(fusebox);
+}
+
+bool AAssignment2Character::ServerPlaceFuse_Validate(AMyFuseBox* fusebox)
+{
+	return true;
+}
+// ******************************************************************************

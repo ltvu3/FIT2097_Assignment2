@@ -3,35 +3,34 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/StaticMeshActor.h"
-#include "MyKey.generated.h"
+#include "GameFramework/Actor.h"
+#include "MyFuseBox.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class ASSIGNMENT2_API AMyKey : public AStaticMeshActor
+class ASSIGNMENT2_API AMyFuseBox : public AActor
 {
 	GENERATED_BODY()
-		
-public:
+	
+public:	
+	// Sets default values for this actor's properties
+	AMyFuseBox();
 
-	AMyKey();
-
-	// Networking Stuff
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(BlueprintPure)
 		bool IsActive();
-	
+
 	UFUNCTION(BlueprintCallable)
 		void setActive(bool NewState);
 
 	FString GetObservation() { return observation; }
-	
-	virtual void GetPickedUp();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void FusePlaced();
 
 protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
 	UPROPERTY(ReplicatedUsing = OnRep_IsActive)
 		bool bIsActive;
@@ -41,5 +40,11 @@ protected:
 
 	UFUNCTION()
 		virtual void OnRep_IsActive();
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	
 	
 };
